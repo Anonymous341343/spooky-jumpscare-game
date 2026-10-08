@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spooky Jumpscare Game</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+
+    :root {
+      --blood-red: #ff2d2d;
+      --dark-red: #8b0000;
+      --ghost-white: #f3f3f3;
+      --fog: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      color: white;
+      font-family: 'Creepster', cursive;
+    }
+
+    body {
+      position: relative;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background:
+        radial-gradient(circle at center, rgba(0,0,0,0.15), rgba(0,0,0,0.8)),
+        url('https://i.imgur.com/3Z9JuYn.jpg') center center / cover no-repeat;
+      filter: brightness(0.6);
+      overflow: hidden;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, transparent 55%, rgba(0,0,0,0.75) 100%);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .flashlight {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,200,0.6), rgba(255,255,100,0.3), transparent);
+      pointer-events: none;
+      z-index: 12;
+      display: none;
+      box-shadow: 0 0 60px rgba(255,255,100,0.4), 0 0 100px rgba(255,255,50,0.2);
+      filter: drop-shadow(0 0 30px rgba(255,255,100,0.3));
+    }
+
+    .message {
+      position: absolute;
+      top: 18px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: clamp(1.8rem, 2vw, 3rem);
+      text-shadow: 0 0 12px red, 0 0 24px rgba(255,0,0,0.8);
+      letter-spacing: 2px;
+      z-index: 20;
+      color: var(--ghost-white);
+      transition: opacity 0.3s ease;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.9);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+      transition: opacity 0.18s ease;
+    }
+
+    .jumpscare {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      display: none;
+      max-width: 80vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border: 3px solid rgba(255, 0, 0, 0.9);
+      box-shadow: 0 0 30px red, 0 0 50px rgba(255, 0, 0, 0.6);
+      z-index: 40;
+      animation: eeriePulse 0.35s ease-in-out infinite alternate;
+    }
+
+    @keyframes eeriePulse {
+      from {
+        box-shadow: 0 0 20px red, 0 0 30px rgba(255,0,0,0.7);
+      }
+      to {
+        box-shadow: 0 0 40px red, 0 0 80px rgba(255,0,0,0.9);
+      }
+    }
+
+    .monster {
+      position: absolute;
+      bottom: 8%;
+      left: -220px;
+      width: 220px;
+      height: auto;
+      opacity: 0;
+      transition: opacity 0.8s ease, filter 0.4s ease;
+      z-index: 15;
+      user-select: none;
+      pointer-events: none;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+      animation: ghostFloat 0.8s ease-in-out infinite;
+    }
+
+    @keyframes ghostFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .monster.chasing {
+      animation: ghostChase 0.4s ease-in-out infinite;
+    }
+
+    @keyframes ghostChase {
+      0%, 100% { transform: translateY(-4px); }
+      50% { transform: translateY(-16px); }
+    }
+
+    .start-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(3px);
+    }
+
+    .start-panel {
+      text-align: center;
+      padding: 2rem 2.5rem;
+      background: rgba(24, 12, 12, 0.7);
+      border: 2px solid rgba(255, 80, 80, 0.8);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.35);
+      border-radius: 18px;
+      max-width: 520px;
+    }
+
+    .start-panel h1 {
+      margin: 0 0 0.6rem;
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255,0,0,0.8);
+    }
+
+    .start-panel p {
+      margin: 0 0 1.5rem;
+      font-size: clamp(1.1rem, 2vw, 1.8rem);
+      letter-spacing: 1px;
+      color: #f4d1d1;
+    }
+
+    .controls-info {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: rgba(0,0,0,0.4);
+      border-left: 2px solid rgba(255,100,100,0.6);
+      font-size: 0.95rem;
+      color: #ddd;
+      text-align: left;
+      border-radius: 8px;
+    }
+
+    .controls-info div {
+      margin: 0.4rem 0;
+      font-family: monospace;
+    }
+
+    .start-button {
+      background: linear-gradient(180deg, #ff4d4d, #8b0000);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.9rem 1.8rem;
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      font-family: 'Creepster', cursive;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 16px rgba(255,0,0,0.5);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .start-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 24px rgba(255,0,0,0.8);
+    }
+
+    .game-over-screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 95;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(5px);
+    }
+
+    .game-over-panel {
+      text-align: center;
+      padding: 2.5rem 3rem;
+      background: rgba(60, 12, 12, 0.8);
+      border: 3px solid #ff2d2d;
+      box-shadow: 0 0 50px rgba(255, 0, 0, 0.5), inset 0 0 30px rgba(255, 0, 0, 0.1);
+      border-radius: 18px;
+      max-width: 600px;
+      animation: pulseIn 0.6s ease-out;
+    }
+
+    @keyframes pulseIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .game-over-panel h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      color: #ff2d2d;
+      text-shadow: 0 0 20px rgba(255,45,45,0.9);
+      line-height: 1;
+    }
+
+    .game-over-panel .subtitle {
+      font-size: 1.3rem;
+      color: #f4d1d1;
+      margin-bottom: 1.5rem;
+      letter-spacing: 1px;
+    }
+
+    .stats {
+      background: rgba(0,0,0,0.5);
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+      border-left: 3px solid #ff4d4d;
+    }
+
+    .stat-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.6rem 0;
+      font-size: 1.1rem;
+      color: #ddd;
+    }
+
+    .stat-label {
+      color: #f4d1d1;
+      font-weight: bold;
+    }
+
+    .stat-value {
+      color: #ffaaaa;
+      font-family: monospace;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .restart-button, .quit-button {
+      border: none;
+      border-radius: 10px;
+      padding: 0.8rem 1.6rem;
+      font-size: 1.1rem;
+      font-family: 'Creepster', cursive;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .restart-button {
+      background: linear-gradient(180deg, #ff4d4d, #8b0000);
+      color: white;
+      box-shadow: 0 0 16px rgba(255,0,0,0.5);
+    }
+
+    .restart-button:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 0 24px rgba(255,0,0,0.8);
+    }
+
+    .quit-button {
+      background: rgba(50, 50, 50, 0.8);
+      color: #ccc;
+      box-shadow: 0 0 10px rgba(100,100,100,0.3);
+      border: 1px solid rgba(100,100,100,0.5);
+    }
+
+    .quit-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 16px rgba(100,100,100,0.5);
+      background: rgba(70, 70, 70, 0.8);
+    }
+
+    .hud {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 25;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      color: #f9d7d7;
+      text-shadow: 0 0 10px rgba(255,0,0,0.7);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .hud-item {
+      margin: 0.5rem 0;
+    }
+
+    .fear-bar {
+      width: 200px;
+      height: 20px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,100,100,0.5);
+      border-radius: 10px;
+      margin-top: 0.3rem;
+      overflow: hidden;
+    }
+
+    .fear-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffaa00, #ff4d4d);
+      width: 20%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(255,100,100,0.6);
+    }
+
+    .scares-counter {
+      font-size: 1.4rem;
+      color: #ff6666;
+      text-shadow: 0 0 8px rgba(255,102,102,0.8);
+    }
+
+    .status-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5rem;
+      color: #ffaaaa;
+      text-shadow: 0 0 15px rgba(255,0,0,0.8);
+      display: none;
+      z-index: 35;
+      animation: fadeInOut 1s ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      50% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+    }
+
+    .ambient-fog {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 25%),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,0.07), transparent 30%),
+        radial-gradient(circle at 30% 70%, rgba(255,255,255,0.05), transparent 28%);
+      opacity: 0.8;
+      pointer-events: none;
+      animation: drift 18s ease-in-out infinite alternate;
+      z-index: 10;
+    }
+
+    @keyframes drift {
+      0% { transform: translateX(-1%) translateY(0); }
+      50% { transform: translateX(2%) translateY(-1%); }
+      100% { transform: translateX(-2%) translateY(1%); }
+    }
+
+    .heartbeat {
+      animation: heartbeat 0.6s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.05); }
+      50% { transform: scale(1); }
+    }
+
+    .controls-hint {
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      z-index: 25;
+      font-size: 0.9rem;
+      color: #999;
+      text-shadow: 0 0 5px rgba(0,0,0,0.8);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .danger-zone {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--danger-x, 0) var(--danger-y, 0), rgba(255,0,0,0.15), transparent 35%);
+      pointer-events: none;
+      z-index: 8;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container" id="game">
+    <div class="ambient-fog"></div>
+    <div class="vignette"></div>
+    <div class="danger-zone" id="dangerZone"></div>
+    <div class="flashlight" id="flashlight"></div>
+
+    <div class="hud" id="hud">
+      <div class="hud-item scares-counter">Scares: <span id="scaresCount">0</span></div>
+      <div class="hud-item">Fear level: <span id="fearLevel">low</span></div>
+      <div class="fear-bar">
+        <div class="fear-fill" id="fearFill"></div>
+      </div>
+    </div>
+
+    <div class="controls-hint" id="controlsHint">
+      <div>🔦 F: Flashlight | ⬅➡: Move | 🏃 SPACE: Run</div>
+    </div>
+
+    <div class="message" id="message">
+      Explore the darkness... if you dare.
+    </div>
+
+    <div class="status-text" id="statusText"></div>
+
+    <img
+      src="https://i.imgur.com/3mZ6p9M.png"
+      alt="Jumpscare"
+      class="jumpscare"
+      id="jumpscare"
+    />
+
+    <img
+      src="https://cdn.pixabay.com/photo/2016/10/20/18/35/ghost-1753034_960_720.png"
+      alt="Scary Monster"
+      class="monster"
+      id="monster"
+    />
+
+    <div class="flash" id="flash"></div>
+
+    <div class="start-screen" id="startScreen">
+      <div class="start-panel">
+        <h1>Midnight Manor</h1>
+        <p>Someone is watching from the shadows...</p>
+        <div class="controls-info">
+          <div><strong>⬅ ➡ Arrow Keys:</strong> Move around</div>
+          <div><strong>SPACE:</strong> Run away from monsters</div>
+          <div><strong>F:</strong> Toggle flashlight</div>
+          <div><strong>ESC:</strong> Pause game</div>
+        </div>
+        <button class="start-button" id="startButton">Enter the Darkness</button>
+      </div>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+      <div class="game-over-panel">
+        <h1>GAME OVER</h1>
+        <div class="subtitle">You were caught!</div>
+        <div class="stats">
+          <div class="stat-line">
+            <span class="stat-label">Total Scares:</span>
+            <span class="stat-value" id="finalScares">0</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">Survival Time:</span>
+            <span class="stat-value" id="survivalTime">0s</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">Max Fear Level:</span>
+            <span class="stat-value" id="maxFear">0%</span>
+          </div>
+        </div>
+        <div class="button-group">
+          <button class="restart-button" id="restartButton">Try Again</button>
+          <button class="quit-button" id="quitButton">Main Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const jumpscare = document.getElementById('jumpscare');
+    const message = document.getElementById('message');
+    const monster = document.getElementById('monster');
+    const flash = document.getElementById('flash');
+    const hud = document.getElementById('hud');
+    const startScreen = document.getElementById('startScreen');
+    const startButton = document.getElementById('startButton');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const restartButton = document.getElementById('restartButton');
+    const quitButton = document.getElementById('quitButton');
+    const flashlight = document.getElementById('flashlight');
+    const dangerZone = document.getElementById('dangerZone');
+    const statusText = document.getElementById('statusText');
+    const controlsHint = document.getElementById('controlsHint');
+
+    // Game state
+    let gameStarted = false;
+    let gamePaused = false;
+    let playerX = window.innerWidth / 2;
+    let playerY = window.innerHeight / 2;
+    let isRunning = false;
+    let flashlightOn = false;
+    let scaresCount = 0;
+    let maxFearLevel = 0;
+    let currentFearLevel = 0;
+    let startTime = 0;
+    let monsterX = -220;
+    let monsterY = window.innerHeight * 0.8;
+    let monsterChasing = false;
+
+    const keys = {};
+
+    // Audio setup
+    const screamAudio = new Audio('https://actions.google.com/sounds/v1/alarms/siren_short.ogg');
+    const ambientAudio = new Audio('https://actions.google.com/sounds/v1/ambiences/creepy_ambience.ogg');
+    const heartbeatAudio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+
+    screamAudio.preload = 'auto';
+    ambientAudio.preload = 'auto';
+    heartbeatAudio.preload = 'auto';
+    ambientAudio.loop = true;
+    ambientAudio.volume = 0.25;
+    heartbeatAudio.volume = 0.6;
+
+    function unlockAudio() {
+      ambientAudio.play().catch(() => {});
+      screamAudio.volume = 0.9;
+    }
+
+    function setMessage(text) {
+      message.textContent = text;
+    }
+
+    function updateFearLevel() {
+      const distance = calculateDistance(playerX, playerY, monsterX, monsterY);
+      const maxDistance = Math.hypot(window.innerWidth, window.innerHeight);
+      currentFearLevel = Math.max(0, Math.min(100, 100 - (distance / maxDistance) * 100));
+      maxFearLevel = Math.max(maxFearLevel, currentFearLevel);
+
+      const fearFill = document.getElementById('fearFill');
+      fearFill.style.width = currentFearLevel + '%';
+
+      let fearText = 'low';
+      if (currentFearLevel > 70) fearText = 'CRITICAL';
+      else if (currentFearLevel > 50) fearText = 'high';
+      else if (currentFearLevel > 25) fearText = 'medium';
+
+      document.getElementById('fearLevel').textContent = fearText;
+
+      // Play heartbeat if scared
+      if (currentFearLevel > 60 && !heartbeatAudio.playing) {
+        heartbeatAudio.currentTime = 0;
+        heartbeatAudio.play().catch(() => {});
+      }
+
+      return currentFearLevel;
+    }
+
+    function updateHud(level) {
+      document.getElementById('fearLevel').textContent = level;
+    }
+
+    function flashScreen() {
+      flash.style.opacity = '1';
+      setTimeout(() => {
+        flash.style.opacity = '0';
+      }, 120);
+    }
+
+    function triggerJumpscare() {
+      if (!gameStarted || gamePaused) return;
+
+      jumpscare.style.display = 'block';
+      jumpscare.style.opacity = '1';
+      flashScreen();
+
+      setMessage('A ghost appears!');
+      scaresCount++;
+      document.getElementById('scaresCount').textContent = scaresCount;
+
+      screamAudio.currentTime = 0;
+      screamAudio.play().catch(() => {});
+
+      setTimeout(() => {
+        if (gameStarted && !gamePaused) {
+          jumpscare.style.display = 'none';
+          setMessage('Keep exploring...');
+        }
+      }, 1800);
+    }
+
+    function calculateDistance(x1, y1, x2, y2) {
+      return Math.hypot(x2 - x1, y2 - y1);
+    }
+
+    function monsterWalk() {
+      if (!gameStarted) return;
+
+      monster.style.opacity = '1';
+      monster.style.filter = 'drop-shadow(0 0 12px rgba(255,255,255,0.2))';
+      monster.classList.remove('chasing');
+      monsterChasing = false;
+
+      let pos = -220;
+      const endPos = window.innerWidth + 220;
+      const speed = 2.6;
+      const startMonsterY = window.innerHeight * 0.75;
+      monsterY = startMonsterY;
+
+      function move() {
+        if (!gameStarted || gamePaused) return;
+
+        if (pos < endPos) {
+          pos += speed;
+          monsterX = pos;
+          monster.style.left = pos + 'px';
+          monster.style.bottom = '8%';
+
+          // Check if player is close - monster should chase
+          const distance = calculateDistance(playerX, playerY, monsterX, monsterY);
+          if (distance < 250 && !isRunning) {
+            monsterChase(pos);
+            return;
+          }
+
+          requestAnimationFrame(move);
+        } else {
+          monster.style.opacity = '0';
+          monster.style.left = '-220px';
+          monsterX = -220;
+          monsterChasing = false;
+          monster.classList.remove('chasing');
+
+          setTimeout(() => {
+            if (gameStarted) monsterWalk();
+          }, 2000 + Math.random() * 7000);
+        }
+      }
+
+      move();
+    }
+
+    function monsterChase(startPos) {
+      if (!gameStarted || gamePaused) return;
+
+      monsterChasing = true;
+      monster.classList.add('chasing');
+      setMessage('RUN!');
+
+      const chaseSpeed = isRunning ? 3.5 : 4.2;
+      let pos = startPos;
+
+      function chase() {
+        if (!gameStarted || !monsterChasing) return;
+
+        // Move towards player
+        if (pos < playerX) {
+          pos += chaseSpeed;
+        } else {
+          pos -= chaseSpeed;
+        }
+
+        monsterX = pos;
+        monster.style.left = pos + 'px';
+
+        // Check if caught player
+        const distance = calculateDistance(playerX, playerY, monsterX, monsterY);
+        if (distance < 100) {
+          endGame();
+          return;
+        }
+
+        // Check if player escaped
+        if (distance > 350) {
+          monsterChasing = false;
+          monster.classList.remove('chasing');
+          setMessage('You escaped!');
+          showStatus('ESCAPED!', '#00ff00');
+          setTimeout(() => monsterWalk(), 1000);
+          return;
+        }
+
+        requestAnimationFrame(chase);
+      }
+
+      chase();
+    }
+
+    function updatePlayerPosition() {
+      if (!gameStarted || gamePaused) return;
+
+      const speed = isRunning ? 6 : 3;
+
+      if (keys['ArrowLeft'] || keys['a']) playerX = Math.max(0, playerX - speed);
+      if (keys['ArrowRight'] || keys['d']) playerX = Math.min(window.innerWidth, playerX + speed);
+      if (keys['ArrowUp'] || keys['w']) playerY = Math.max(0, playerY - speed);
+      if (keys['ArrowDown'] || keys['s']) playerY = Math.min(window.innerHeight, playerY - speed);
+
+      // Update flashlight position
+      if (flashlightOn) {
+        flashlight.style.left = (playerX - 150) + 'px';
+        flashlight.style.top = (playerY - 150) + 'px';
+      }
+
+      // Update danger zone
+      dangerZone.style.setProperty('--danger-x', playerX + 'px');
+      dangerZone.style.setProperty('--danger-y', playerY + 'px');
+
+      updateFearLevel();
+    }
+
+    function showStatus(text, color = '#ffaaaa') {
+      statusText.textContent = text;
+      statusText.style.color = color;
+      statusText.style.display = 'block';
+
+      setTimeout(() => {
+        statusText.style.display = 'none';
+      }, 1200);
+    }
+
+    function toggleFlashlight() {
+      flashlightOn = !flashlightOn;
+      flashlight.style.display = flashlightOn ? 'block' : 'none';
+
+      if (flashlightOn) {
+        showStatus('🔦 Flashlight ON', '#ffff99');
+      } else {
+        showStatus('🔦 Flashlight OFF', '#666666');
+      }
+    }
+
+    function randomJumpscare() {
+      if (!gameStarted || gamePaused) return;
+
+      const delay = 8000 + Math.random() * 12000;
+      setTimeout(() => {
+        if (gameStarted && !gamePaused) {
+          triggerJumpscare();
+          randomJumpscare();
+        }
+      }, delay);
+    }
+
+    function endGame() {
+      gameStarted = false;
+      monsterChasing = false;
+      monster.classList.remove('chasing');
+      ambientAudio.pause();
+      heartbeatAudio.pause();
+
+      const survivalTime = Math.floor((Date.now() - startTime) / 1000);
+
+      document.getElementById('finalScares').textContent = scaresCount;
+      document.getElementById('survivalTime').textContent = survivalTime + 's';
+      document.getElementById('maxFear').textContent = Math.round(maxFearLevel) + '%';
+
+      gameOverScreen.style.display = 'flex';
+      message.style.opacity = '0';
+      controlsHint.style.opacity = '0';
+    }
+
+    function startGame() {
+      gameStarted = true;
+      gamePaused = false;
+      playerX = window.innerWidth / 2;
+      playerY = window.innerHeight / 2;
+      isRunning = false;
+      flashlightOn = false;
+      scaresCount = 0;
+      maxFearLevel = 0;
+      currentFearLevel = 0;
+      startTime = Date.now();
+      monsterChasing = false;
+
+      flashlight.style.display = 'none';
+      startScreen.style.display = 'none';
+      gameOverScreen.style.display = 'none';
+      message.style.opacity = '1';
+      controlsHint.style.opacity = '1';
+      monster.classList.remove('chasing');
+
+      document.getElementById('scaresCount').textContent = '0';
+
+      unlockAudio();
+      setMessage('Explore the darkness... if you dare.');
+      updateHud('low');
+      randomJumpscare();
+      monsterWalk();
+
+      gameLoop();
+    }
+
+    function pauseGame() {
+      if (!gameStarted) return;
+
+      gamePaused = !gamePaused;
+      if (gamePaused) {
+        ambientAudio.pause();
+        heartbeatAudio.pause();
+        setMessage('PAUSED - Press ESC to resume');
+        message.style.opacity = '0.7';
+      } else {
+        unlockAudio();
+        setMessage('Explore the darkness... if you dare.');
+        message.style.opacity = '1';
+      }
+    }
+
+    function gameLoop() {
+      if (!gameStarted) return;
+
+      if (!gamePaused) {
+        updatePlayerPosition();
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function resetGame() {
+      gameStarted = false;
+      gamePaused = false;
+      monsterChasing = false;
+      flashlightOn = false;
+      isRunning = false;
+      scaresCount = 0;
+      maxFearLevel = 0;
+      currentFearLevel = 0;
+
+      monster.style.opacity = '0';
+      monster.style.left = '-220px';
+      monster.classList.remove('chasing');
+      jumpscare.style.display = 'none';
+      flashlight.style.display = 'none';
+      dangerZone.style.display = 'none';
+      message.style.opacity = '1';
+      controlsHint.style.opacity = '1';
+
+      document.getElementById('fearFill').style.width = '0%';
+      document.getElementById('scaresCount').textContent = '0';
+      document.getElementById('fearLevel').textContent = 'low';
+
+      startScreen.style.display = 'flex';
+      gameOverScreen.style.display = 'none';
+
+      ambientAudio.pause();
+      heartbeatAudio.pause();
+    }
+
+    // Event listeners
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', startGame);
+    quitButton.addEventListener('click', resetGame);
+
+    document.addEventListener('keydown', (e) => {
+      keys[e.key] = true;
+
+      if (e.key === 'F' || e.key === 'f') {
+        e.preventDefault();
+        if (gameStarted && !gamePaused) toggleFlashlight();
+      }
+
+      if (e.key === ' ') {
+        e.preventDefault();
+        if (gameStarted && !gamePaused) {
+          isRunning = !isRunning;
+          if (isRunning) {
+            showStatus('🏃 RUNNING!', '#ffaa00');
+            dangerZone.style.display = 'block';
+          } else {
+            dangerZone.style.display = 'none';
+          }
+        }
+      }
+
+      if (e.key === 'Escape') {
+        if (gameStarted) pauseGame();
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      keys[e.key] = false;
+
+      if (e.key === ' ') {
+        isRunning = false;
+        dangerZone.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && gameStarted && !gamePaused) {
+        pauseGame();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      playerX = Math.min(playerX, window.innerWidth);
+      playerY = Math.min(playerY, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
