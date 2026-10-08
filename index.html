@@ -54,29 +54,27 @@
       background: linear-gradient(135deg, #1a0a0a 0%, #2d1515 50%, #1a0a0a 100%);
     }
 
-    .maze-overlay {
+    canvas {
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
+      display: block;
     }
 
     .vignette {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.7) 100%);
+      background: radial-gradient(circle, transparent 45%, rgba(0,0,0,0.8) 100%);
       z-index: 15;
       pointer-events: none;
     }
 
     .player {
       position: absolute;
-      width: 30px;
-      height: 40px;
-      background: radial-gradient(circle at 30% 30%, #ffff99, #ffff00);
-      border-radius: 50% 50% 40% 40%;
+      width: 28px;
+      height: 36px;
+      background: radial-gradient(circle at 35% 25%, #ffff99, #ffff00);
+      border-radius: 50% 50% 45% 45%;
       z-index: 20;
       pointer-events: none;
       box-shadow: 0 0 20px rgba(255,255,0,0.6);
@@ -84,20 +82,30 @@
     }
 
     .player.running {
-      filter: drop-shadow(0 0 30px rgba(255,255,0,0.8));
+      filter: drop-shadow(0 0 35px rgba(255,255,0,0.8)) brightness(1.2);
     }
 
-    .flashlight {
+    .flashlight-cone {
       position: absolute;
-      width: 280px;
-      height: 280px;
+      width: 350px;
+      height: 350px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,150,0.7), rgba(255,255,100,0.3), transparent);
+      background: radial-gradient(circle, rgba(255,255,200,0.8), rgba(255,255,150,0.4), transparent);
       pointer-events: none;
-      z-index: 12;
+      z-index: 11;
       display: none;
-      box-shadow: 0 0 80px rgba(255,255,100,0.5), inset 0 0 40px rgba(255,255,150,0.2);
-      filter: drop-shadow(0 0 40px rgba(255,255,100,0.4));
+      box-shadow: 0 0 100px rgba(255,255,100,0.6), inset 0 0 50px rgba(255,255,150,0.3);
+      filter: drop-shadow(0 0 50px rgba(255,255,100,0.5));
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+
+    .flashlight-cone.active {
+      animation: flashlightFlicker 0.08s infinite;
+    }
+
+    @keyframes flashlightFlicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
     }
 
     .monster {
@@ -123,13 +131,29 @@
     }
 
     .monster.chasing {
-      animation: ghostChase 0.5s ease-in-out infinite;
-      filter: drop-shadow(0 0 25px rgba(255,0,0,0.8));
+      animation: ghostChase 0.4s ease-in-out infinite;
+      filter: drop-shadow(0 0 35px rgba(255,0,0,0.9));
     }
 
     @keyframes ghostChase {
-      0%, 100% { transform: translateY(-8px) scaleX(1.1); }
-      50% { transform: translateY(-20px) scaleX(0.95); }
+      0%, 100% { transform: translateY(-8px) scaleX(1.15) scaleY(1.1); }
+      50% { transform: translateY(-22px) scaleX(0.9) scaleY(1.2); }
+    }
+
+    .key-item {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      z-index: 18;
+      user-select: none;
+      pointer-events: none;
+      font-size: 1.5rem;
+      animation: keyBob 1.5s ease-in-out infinite;
+    }
+
+    @keyframes keyBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
     .exit-door {
@@ -143,7 +167,7 @@
       align-items: center;
       justify-content: center;
       font-size: 2rem;
-      z-index: 18;
+      z-index: 17;
       box-shadow: 0 0 40px rgba(212, 175, 55, 0.5), inset 0 0 15px rgba(0,0,0,0.6);
       cursor: pointer;
       transition: all 0.3s ease;
@@ -166,6 +190,17 @@
       letter-spacing: 1px;
     }
 
+    .detection-radius {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border: 2px dashed rgba(255,100,100,0.3);
+      border-radius: 50%;
+      z-index: 16;
+      pointer-events: none;
+      display: none;
+    }
+
     .hud {
       position: absolute;
       top: 15px;
@@ -177,7 +212,7 @@
       text-shadow: 0 0 10px rgba(255,0,0,0.7);
       user-select: none;
       pointer-events: none;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
       padding: 12px;
       border-radius: 8px;
       border: 1px solid rgba(255,100,100,0.3);
@@ -185,12 +220,19 @@
 
     .hud-item { margin: 0.5rem 0; }
 
-    .health-bar, .fear-bar {
-      width: 200px;
-      height: 18px;
+    .keys-collected {
+      font-size: 1rem;
+      color: #ffd700;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+      margin-bottom: 0.6rem;
+    }
+
+    .health-bar, .fear-bar, .noise-bar {
+      width: 180px;
+      height: 16px;
       background: rgba(0,0,0,0.6);
       border: 1px solid rgba(255,100,100,0.5);
-      border-radius: 10px;
+      border-radius: 8px;
       margin: 0.3rem 0;
       overflow: hidden;
     }
@@ -211,6 +253,14 @@
       box-shadow: 0 0 8px rgba(255,100,100,0.6);
     }
 
+    .noise-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #99ff99, #ffff00, #ff4d4d);
+      width: 10%;
+      transition: width 0.2s ease;
+      box-shadow: 0 0 8px rgba(255,255,100,0.6);
+    }
+
     .noise-indicator {
       position: absolute;
       left: 15px;
@@ -221,7 +271,7 @@
       text-shadow: 0 0 8px rgba(255, 255, 100, 0.8);
       user-select: none;
       pointer-events: none;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
       padding: 8px 12px;
       border-radius: 6px;
       border: 1px solid rgba(255, 255, 100, 0.3);
@@ -233,17 +283,12 @@
       right: 15px;
       width: 150px;
       height: 150px;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.9);
       border: 2px solid rgba(255,100,100,0.5);
       border-radius: 8px;
       z-index: 30;
       overflow: hidden;
       pointer-events: none;
-    }
-
-    .minimap-canvas {
-      width: 100%;
-      height: 100%;
     }
 
     .level-progress {
@@ -253,12 +298,12 @@
       transform: translateX(-50%);
       z-index: 30;
       text-align: center;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #ffaa00;
       text-shadow: 0 0 8px rgba(255, 170, 0, 0.8);
       user-select: none;
       pointer-events: none;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
       padding: 8px 16px;
       border-radius: 6px;
       border: 1px solid rgba(255, 170, 0, 0.3);
@@ -269,12 +314,12 @@
       bottom: 15px;
       left: 15px;
       z-index: 30;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #999;
       text-shadow: 0 0 5px rgba(0,0,0,0.8);
       user-select: none;
       pointer-events: none;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
       padding: 8px 12px;
       border-radius: 6px;
     }
@@ -284,8 +329,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 2rem;
-      text-shadow: 0 0 15px red;
+      font-size: 2.5rem;
+      text-shadow: 0 0 20px red;
       letter-spacing: 2px;
       z-index: 25;
       color: var(--ghost-white);
@@ -323,17 +368,13 @@
       border-radius: 12px;
       max-width: 550px;
       animation: panelSlideIn 0.4s ease-out;
+      max-height: 85vh;
+      overflow-y: auto;
     }
 
     @keyframes panelSlideIn {
-      from {
-        transform: translateY(-30px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     .panel h1 {
@@ -478,32 +519,35 @@
   <div class="game-wrapper">
     <div class="game-viewport">
       <div class="mansion-canvas"></div>
-      <canvas class="maze-overlay" id="mazeCanvas"></canvas>
+      <canvas id="gameCanvas"></canvas>
+      <canvas id="minimapCanvas" style="display: none;"></canvas>
       
       <div class="vignette"></div>
-      <div class="flashlight" id="flashlight"></div>
+      <div class="flashlight-cone" id="flashlightCone"></div>
       <div class="player" id="player"></div>
       <div class="monster" id="monster">👻</div>
-      <div class="exit-door" id="exitDoor">
-        🚪
-        <div class="exit-label">EXIT</div>
-      </div>
+      <div class="detection-radius" id="detectionRadius"></div>
+      <div id="itemsContainer"></div>
 
       <div class="noise-indicator" id="noiseIndicator">🔊 Noise: LOW</div>
       <div class="level-progress" id="levelProgress">Level 1</div>
       
       <div class="hud" id="hud">
-        <div class="hud-item" style="font-size: 0.9rem; color: #ffaa00;">🎯 Scares: <span id="scaresCount">0</span></div>
+        <div class="keys-collected">🔑 Keys: <span id="keysCount">0</span>/3</div>
         <div class="hud-item">❤️ HP: <span id="healthValue">100</span>%
           <div class="health-bar"><div class="health-fill" id="healthFill"></div></div>
         </div>
         <div class="hud-item">😨 Fear: <span id="fearLevel">low</span>
           <div class="fear-bar"><div class="fear-fill" id="fearFill"></div></div>
         </div>
+        <div class="hud-item">🔊 Noise:
+          <div class="noise-bar"><div class="noise-fill" id="noiseFill"></div></div>
+        </div>
+        <div class="hud-item" style="font-size: 0.9rem; color: #ffaa00; margin-top: 0.8rem;">👻 Scares: <span id="scaresCount">0</span></div>
       </div>
 
       <div class="minimap">
-        <canvas class="minimap-canvas" id="minimapCanvas"></canvas>
+        <canvas class="minimap-canvas" id="minimapCanvas" width="150" height="150"></canvas>
       </div>
 
       <div class="controls-hint" id="controlsHint">
@@ -523,13 +567,19 @@
         <div class="controls-info">
           <strong>Controls:</strong>
           <div>⬅➡⬆⬇ Arrow Keys: Move</div>
-          <div>SPACE: Run (faster but louder)</div>
-          <div>F: Flashlight (bright but attracts ghosts)</div>
+          <div>SPACE: Run (louder!)</div>
+          <div>F: Flashlight (bright cone)</div>
           <div>ESC: Pause</div>
+          <strong style="display: block; margin-top: 0.6rem;">Objective:</strong>
+          <div>🔑 Collect 3 keys to unlock exit</div>
+          <div>🚪 Reach the EXIT safely</div>
+          <div>👻 Avoid the ghost!</div>
           <strong style="display: block; margin-top: 0.6rem;">Tips:</strong>
-          <div>Stay quiet and find the 🚪 EXIT</div>
-          <div>Avoid the ghost or run!</div>
-          <div>Use the minimap to navigate</div>
+          <div>• Stay quiet (run = danger)</div>
+          <div>• Flashlight attracts ghosts</div>
+          <div>• Ghost has vision & hearing</div>
+          <div>• Doors open if you have keys</div>
+          <div>• Check minimap to navigate</div>
         </div>
         <button class="btn btn-primary" id="startButton">Start Game</button>
       </div>
@@ -553,6 +603,7 @@
         <div class="stats">
           <div class="stat-line"><span class="stat-label">Scares:</span><span class="stat-value" id="finalScares">0</span></div>
           <div class="stat-line"><span class="stat-label">Survival Time:</span><span class="stat-value" id="survivalTime">0s</span></div>
+          <div class="stat-line"><span class="stat-label">Keys Found:</span><span class="stat-value" id="finalKeys">0</span></div>
           <div class="stat-line"><span class="stat-label">Final Health:</span><span class="stat-value" id="finalHealth">0%</span></div>
         </div>
         <div class="button-group">
@@ -569,6 +620,7 @@
         <div class="stats">
           <div class="stat-line"><span class="stat-label">Scares:</span><span class="stat-value" id="completeScaresCount">0</span></div>
           <div class="stat-line"><span class="stat-label">Escape Time:</span><span class="stat-value" id="completeTime">0s</span></div>
+          <div class="stat-line"><span class="stat-label">Keys Found:</span><span class="stat-value" id="completeKeys">3</span></div>
           <div class="stat-line"><span class="stat-label">Health:</span><span class="stat-value" id="completeHealth">0%</span></div>
           <div class="stat-line"><span class="stat-label">Next Level:</span><span class="stat-value" id="nextLevelLabel">LEVEL 2</span></div>
         </div>
@@ -581,171 +633,308 @@
   </div>
 
   <script>
-    // ======================== MAZE GENERATION ========================
-    class MazeGenerator {
-      constructor(width, height, cellSize) {
+    // ======================== ROOM-BASED LEVEL DESIGN ========================
+    class Room {
+      constructor(x, y, width, height, type = 'normal') {
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
-        this.cellSize = cellSize;
-        this.cells = Array(height).fill().map(() => Array(width).fill(0));
-        this.generate();
+        this.type = type; // 'normal', 'treasure', 'exit'
+        this.doors = []; // Array of Door objects
       }
 
-      generate() {
-        for (let i = 0; i < this.height; i++) {
-          for (let j = 0; j < this.width; j++) {
-            if (i === 0 || j === 0 || i === this.height - 1 || j === this.width - 1) {
-              this.cells[i][j] = 1; // Wall
-            } else if (Math.random() < 0.25) {
-              this.cells[i][j] = 1; // Wall
-            }
-          }
-        }
-        // Carve main paths
-        this.carvePath(1, 1);
+      containsPoint(px, py) {
+        return px >= this.x && px <= this.x + this.width && py >= this.y && py <= this.y + this.height;
       }
 
-      carvePath(x, y, depth = 0) {
-        const maxDepth = 15;
-        if (depth > maxDepth) return;
+      draw(ctx) {
+        ctx.strokeStyle = 'rgba(100, 80, 60, 0.8)';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
 
-        this.cells[y][x] = 0; // Floor
-        const directions = [[0, -2], [2, 0], [0, 2], [-2, 0]].sort(() => Math.random() - 0.5);
+        // Room shading
+        ctx.fillStyle = 'rgba(20, 15, 10, 0.3)';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        for (let [dx, dy] of directions) {
-          const nx = x + dx;
-          const ny = y + dy;
-
-          if (nx > 0 && nx < this.width - 1 && ny > 0 && ny < this.height - 1 && this.cells[ny][nx] === 1) {
-            this.cells[y + dy / 2][x + dx / 2] = 0;
-            this.carvePath(nx, ny, depth + 1);
-          }
-        }
-      }
-
-      isWall(x, y) {
-        const gridX = Math.floor(x / this.cellSize);
-        const gridY = Math.floor(y / this.cellSize);
-        return gridX < 0 || gridX >= this.width || gridY < 0 || gridY >= this.height || this.cells[gridY][gridX] === 1;
-      }
-
-      draw(ctx, offsetX = 0, offsetY = 0) {
-        ctx.fillStyle = 'rgba(30, 15, 10, 0.8)';
-        for (let i = 0; i < this.height; i++) {
-          for (let j = 0; j < this.width; j++) {
-            if (this.cells[i][j] === 1) {
-              ctx.fillRect(j * this.cellSize + offsetX, i * this.cellSize + offsetY, this.cellSize, this.cellSize);
-            }
-          }
+        // Type indicator
+        if (this.type === 'treasure') {
+          ctx.fillStyle = 'rgba(255, 215, 0, 0.15)';
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+        } else if (this.type === 'exit') {
+          ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+          ctx.fillRect(this.x, this.y, this.width, this.height);
         }
       }
     }
 
-    // ======================== MONSTER AI ========================
-    class MonsterAI {
-      constructor(x, y, speed = 2.5) {
+    class Door {
+      constructor(x, y, width, height, requiresKey = false) {
         this.x = x;
         this.y = y;
-        this.speed = speed;
+        this.width = width;
+        this.height = height;
+        this.requiresKey = requiresKey;
+        this.isOpen = !requiresKey;
+      }
+
+      containsPoint(px, py) {
+        return px >= this.x && px <= this.x + this.width && py >= this.y && py <= this.y + this.height;
+      }
+
+      canPass(keysHeld) {
+        if (!this.requiresKey) return true;
+        return keysHeld > 0;
+      }
+
+      open(keysHeld) {
+        if (this.canPass(keysHeld)) {
+          this.isOpen = true;
+          return true;
+        }
+        return false;
+      }
+
+      draw(ctx) {
+        if (this.isOpen) {
+          ctx.strokeStyle = 'rgba(100, 200, 100, 0.4)';
+          ctx.lineWidth = 2;
+        } else {
+          ctx.fillStyle = 'rgba(80, 40, 20, 0.9)';
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+          ctx.strokeStyle = 'rgba(200, 100, 100, 0.8)';
+          ctx.lineWidth = 3;
+        }
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+
+        if (this.requiresKey && !this.isOpen) {
+          ctx.fillStyle = '#ffd700';
+          ctx.font = 'bold 20px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('🔒', this.x + this.width / 2, this.y + this.height / 2 + 6);
+        }
+      }
+    }
+
+    class LevelDesign {
+      constructor(level = 1) {
+        this.rooms = [];
+        this.doors = [];
+        this.keys = [];
+        this.level = level;
+        this.generateLevel();
+      }
+
+      generateLevel() {
+        // Start room
+        this.rooms.push(new Room(50, 50, 400, 300, 'normal'));
+
+        // Middle rooms
+        this.rooms.push(new Room(500, 50, 350, 300, 'treasure'));
+        this.rooms.push(new Room(50, 400, 350, 300, 'treasure'));
+        this.rooms.push(new Room(500, 400, 350, 300, 'treasure'));
+
+        // Exit room
+        this.rooms.push(new Room(950, 200, 250, 200, 'exit'));
+
+        // Create doors between rooms
+        this.doors.push(new Door(450, 150, 40, 60, true)); // Start to right
+        this.doors.push(new Door(200, 350, 60, 40, true)); // Start to bottom
+        this.doors.push(new Door(450, 500, 40, 60, false)); // Bottom left to bottom right
+        this.doors.push(new Door(550, 350, 60, 40, false)); // Middle to bottom right
+        this.doors.push(new Door(900, 250, 40, 60, false)); // Right to exit
+
+        // Place keys in treasure rooms
+        this.keys = [
+          { x: 650, y: 150, collected: false },
+          { x: 150, y: 550, collected: false },
+          { x: 650, y: 550, collected: false }
+        ];
+      }
+
+      isWall(x, y, width = 0, height = 0) {
+        const checkPoint = (px, py) => {
+          // Check if point is in a wall (between rooms)
+          let inRoom = false;
+          for (let room of this.rooms) {
+            if (room.containsPoint(px, py)) {
+              inRoom = true;
+              break;
+            }
+          }
+          return !inRoom;
+        };
+
+        return checkPoint(x, y) || checkPoint(x + width, y) || checkPoint(x, y + height) || checkPoint(x + width, y + height);
+      }
+
+      canPassDoor(x, y, keysHeld) {
+        for (let door of this.doors) {
+          if (door.containsPoint(x, y)) {
+            return door.canPass(keysHeld);
+          }
+        }
+        return true; // Not a door
+      }
+
+      openDoorsWithKeys(keysHeld) {
+        for (let door of this.doors) {
+          if (door.requiresKey && keysHeld > 0 && !door.isOpen) {
+            door.isOpen = true;
+          }
+        }
+      }
+
+      draw(ctx) {
+        // Draw rooms
+        for (let room of this.rooms) {
+          room.draw(ctx);
+        }
+
+        // Draw doors
+        for (let door of this.doors) {
+          door.draw(ctx);
+        }
+      }
+    }
+
+    // ======================== ADVANCED MONSTER AI ========================
+    class SmartMonster {
+      constructor(x, y, level = 1) {
+        this.x = x;
+        this.y = y;
+        this.speed = 2.5 + level * 0.4;
         this.chasing = false;
-        this.pattern = 0;
+        this.detected = false;
+        this.visionRange = 250;
+        this.hearingRange = 300;
+        this.detectionConfidence = 0;
         this.targetX = x;
         this.targetY = y;
-        this.patrolWaypoints = [];
+        this.patrolPoints = [];
+        this.lastKnownPlayerPos = null;
+        this.fearLevel = 0;
         this.setupPatrol();
       }
 
       setupPatrol() {
-        this.patrolWaypoints = [
-          { x: 200, y: 200 },
-          { x: 800, y: 200 },
-          { x: 800, y: 500 },
-          { x: 200, y: 500 }
+        this.patrolPoints = [
+          { x: 250, y: 200 },
+          { x: 700, y: 200 },
+          { x: 700, y: 550 },
+          { x: 250, y: 550 }
         ];
       }
 
-      update(playerX, playerY, maze, noiseLevel) {
-        if (!this.chasing) {
-          // Patrol behavior
-          let wp = this.patrolWaypoints[Math.floor(Date.now() / 8000) % this.patrolWaypoints.length];
-          this.targetX = wp.x + Math.sin(Date.now() / 2000) * 100;
-          this.targetY = wp.y + Math.cos(Date.now() / 2000) * 100;
+      canSeePlayer(playerX, playerY, flashlightOn) {
+        const dist = Math.hypot(playerX - this.x, playerY - this.y);
+        if (dist > this.visionRange) return false;
 
-          // Detect player by proximity or noise
-          const dist = Math.hypot(playerX - this.x, playerY - this.y);
-          if (dist < 200 || noiseLevel > 70) {
-            this.chasing = true;
-            this.pattern = Math.floor(Math.random() * 3);
-          }
+        // Check if in cone of vision
+        const angle = Math.atan2(playerY - this.y, playerX - this.x);
+        const playerAngle = Math.atan2(playerY - this.y, playerX - this.x);
+
+        // Simple cone check
+        if (flashlightOn) {
+          // Flashlight is extremely visible
+          return dist < this.visionRange;
+        }
+
+        return dist < 150; // Close proximity without flashlight
+      }
+
+      hearPlayer(playerX, playerY, noise) {
+        const dist = Math.hypot(playerX - this.x, playerY - this.y);
+        const effectiveRange = this.hearingRange * (1 + noise / 100);
+        return dist < effectiveRange;
+      }
+
+      update(playerX, playerY, level, noise, flashlightOn, keysHeld) {
+        // Detect player through vision and hearing
+        const canSee = this.canSeePlayer(playerX, playerY, flashlightOn);
+        const canHear = this.hearPlayer(playerX, playerY, noise);
+
+        if (canSee || canHear) {
+          this.detectionConfidence += (canSee ? 15 : 8) + noise * 0.1;
+        } else {
+          this.detectionConfidence = Math.max(0, this.detectionConfidence - 3);
+        }
+
+        if (this.detectionConfidence > 50) {
+          this.chasing = true;
+          this.lastKnownPlayerPos = { x: playerX, y: playerY };
+        } else if (this.detectionConfidence < 20) {
+          this.chasing = false;
         }
 
         if (this.chasing) {
-          // Chase behavior
-          const baseSpeed = this.speed + 0.8;
-          const angle = Math.atan2(playerY - this.y, playerX - this.x);
-
-          switch (this.pattern) {
-            case 0: // Direct
-              this.targetX = playerX;
-              this.targetY = playerY;
-              break;
-            case 1: // Flanking
-              const flank = Math.sin(Date.now() / 800) * 80;
-              this.targetX = playerX + flank;
-              this.targetY = playerY + flank;
-              break;
-            case 2: // Herding (try to cut off)
-              this.targetX = playerX - Math.cos(angle) * 150;
-              this.targetY = playerY - Math.sin(angle) * 150;
-              break;
+          // Chase with intelligent pathfinding
+          if (this.lastKnownPlayerPos) {
+            this.targetX = this.lastKnownPlayerPos.x;
+            this.targetY = this.lastKnownPlayerPos.y;
           }
 
-          const chaseDist = Math.hypot(playerX - this.x, playerY - this.y);
-          if (chaseDist > 400) {
+          // Update last known position if still detected
+          if (canSee || canHear) {
+            this.lastKnownPlayerPos = { x: playerX, y: playerY };
+          }
+
+          // Chase timeout
+          if (Date.now() % 5000 > 4000 && !canSee && !canHear) {
             this.chasing = false;
+            this.detectionConfidence = Math.max(0, this.detectionConfidence - 20);
           }
+        } else {
+          // Patrol behavior
+          const waypointIndex = Math.floor(Date.now() / 10000) % this.patrolPoints.length;
+          const wp = this.patrolPoints[waypointIndex];
+          this.targetX = wp.x + Math.sin(Date.now() / 3000) * 80;
+          this.targetY = wp.y + Math.cos(Date.now() / 3000) * 80;
         }
 
         // Move towards target
         const dist = Math.hypot(this.targetX - this.x, this.targetY - this.y);
-        if (dist > 5) {
+        if (dist > 10) {
           const angle = Math.atan2(this.targetY - this.y, this.targetX - this.x);
-          const speed = this.chasing ? this.speed + 1.2 : this.speed;
-          let newX = this.x + Math.cos(angle) * speed;
-          let newY = this.y + Math.sin(angle) * speed;
-
-          // Collision detection with maze
-          if (!maze.isWall(newX, newY)) {
-            this.x = newX;
-            this.y = newY;
-          }
+          const speed = this.chasing ? this.speed + 1.5 : this.speed;
+          this.x += Math.cos(angle) * speed;
+          this.y += Math.sin(angle) * speed;
         }
+
+        // Boundary check
+        this.x = Math.max(50, Math.min(1150, this.x));
+        this.y = Math.max(50, Math.min(650, this.y));
       }
 
       checkCaught(playerX, playerY) {
-        return Math.hypot(playerX - this.x, playerY - this.y) < 40;
+        return Math.hypot(playerX - this.x, playerY - this.y) < 45;
+      }
+
+      draw(ctx) {
+        // Draw detection radius
+        ctx.strokeStyle = 'rgba(255, 100, 100, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.hearingRange, 0, Math.PI * 2);
+        ctx.stroke();
       }
     }
 
     // ======================== GAME STATE ========================
-    const canvas = document.getElementById('mazeCanvas');
+    const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const minimapCanvas = document.getElementById('minimapCanvas');
     const minimapCtx = minimapCanvas.getContext('2d');
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = 1200;
+    canvas.height = 700;
     minimapCanvas.width = 150;
     minimapCanvas.height = 150;
 
-    const CELL_SIZE = 60;
-    const MAZE_WIDTH = Math.ceil(canvas.width / CELL_SIZE);
-    const MAZE_HEIGHT = Math.ceil(canvas.height / CELL_SIZE);
-
-    let maze = new MazeGenerator(MAZE_WIDTH, MAZE_HEIGHT, CELL_SIZE);
-    let monster = new MonsterAI(canvas.width / 2, canvas.height / 2, 2.5);
-    let player = { x: 100, y: 100, width: 30, height: 40, speed: 0 };
-    let exitDoorPos = { x: canvas.width - 150, y: canvas.height - 150 };
+    let level = new LevelDesign(1);
+    let monster = new SmartMonster(600, 350, 1);
+    let player = { x: 150, y: 150, width: 28, height: 36, speed: 0 };
+    let exitDoorPos = { x: 1020, y: 280 };
 
     let gameState = {
       started: false,
@@ -755,6 +944,7 @@
       noise: 0,
       fear: 0,
       scares: 0,
+      keysHeld: 0,
       startTime: 0,
       maxFear: 0,
       isRunning: false,
@@ -778,6 +968,8 @@
       document.getElementById('healthValue').textContent = Math.round(gameState.health);
       document.getElementById('healthFill').style.width = gameState.health + '%';
       document.getElementById('scaresCount').textContent = gameState.scares;
+      document.getElementById('keysCount').textContent = gameState.keysHeld;
+      document.getElementById('noiseFill').style.width = gameState.noise + '%';
 
       let fearText = 'low';
       if (gameState.fear > 70) fearText = 'CRITICAL';
@@ -788,24 +980,24 @@
     }
 
     function updateNoise() {
-      let base = 15;
-      if (gameState.isRunning) base += 35;
-      if (gameState.flashlightOn) base += 30;
+      let base = 10;
+      if (gameState.isRunning) base += 45;
+      if (gameState.flashlightOn) base += 25;
 
-      gameState.noise = Math.max(0, gameState.noise - 1.5);
-      gameState.noise += base * 0.06;
+      gameState.noise = Math.max(0, gameState.noise - 2);
+      gameState.noise += base * 0.08;
 
       let label = '🔊 Noise: LOW';
       let color = '#99ff99';
-      if (gameState.noise > 70) {
-        label = '🔊 Noise: EXTREME';
-        color = '#ff2d2d';
-      } else if (gameState.noise > 50) {
-        label = '🔊 Noise: HIGH';
-        color = '#ffaa00';
-      } else if (gameState.noise > 25) {
-        label = '🔊 Noise: MEDIUM';
-        color = '#ffff99';
+      if (gameState.noise > 75) {
+        label = '🔊 Noise: DEAFENING';
+        color = '#ff1111';
+      } else if (gameState.noise > 55) {
+        label = '🔊 Noise: LOUD';
+        color = '#ff5500';
+      } else if (gameState.noise > 30) {
+        label = '🔊 Noise: AUDIBLE';
+        color = '#ffdd00';
       }
 
       document.getElementById('noiseIndicator').textContent = label;
@@ -814,7 +1006,7 @@
 
     function updateFear() {
       const dist = Math.hypot(player.x - monster.x, player.y - monster.y);
-      gameState.fear = Math.max(0, Math.min(100, 100 - (dist / 500) * 100));
+      gameState.fear = Math.max(0, Math.min(100, 100 - (dist / 600) * 100));
       gameState.maxFear = Math.max(gameState.maxFear, gameState.fear);
 
       if (gameState.fear > 60 && !gameState.heartbeatPlaying) {
@@ -832,6 +1024,34 @@
       if (gameState.health <= 0) endGame();
     }
 
+    function collectKey() {
+      for (let key of level.keys) {
+        if (!key.collected && Math.hypot(player.x - key.x, player.y - key.y) < 40) {
+          key.collected = true;
+          gameState.keysHeld++;
+          level.openDoorsWithKeys(gameState.keysHeld);
+          updateKeyUI();
+          return;
+        }
+      }
+    }
+
+    function updateKeyUI() {
+      document.getElementById('keysCount').textContent = gameState.keysHeld;
+      document.getElementById('itemsContainer').innerHTML = '';
+
+      for (let key of level.keys) {
+        if (!key.collected) {
+          const keyEl = document.createElement('div');
+          keyEl.className = 'key-item';
+          keyEl.style.left = key.x + 'px';
+          keyEl.style.top = key.y + 'px';
+          keyEl.textContent = '🔑';
+          document.getElementById('itemsContainer').appendChild(keyEl);
+        }
+      }
+    }
+
     function triggerJumpscare() {
       if (!gameState.started || gameState.paused) return;
 
@@ -841,8 +1061,8 @@
       setTimeout(() => { document.getElementById('flash').style.opacity = '0'; }, 100);
 
       gameState.scares++;
-      updateHealth(-12);
-      document.getElementById('message').textContent = 'A GHOST APPEARS!';
+      updateHealth(-15);
+      document.getElementById('message').textContent = '👻 GOTCHA!';
       document.getElementById('message').style.display = 'block';
 
       audio.scream.currentTime = 0;
@@ -851,29 +1071,60 @@
       setTimeout(() => {
         jumpscare.style.display = 'none';
         document.getElementById('message').style.display = 'none';
-      }, 1500);
+      }, 1200);
+    }
+
+    function drawFlashlightCone() {
+      const flashlight = document.getElementById('flashlightCone');
+      if (gameState.flashlightOn) {
+        flashlight.style.left = (player.x - 175) + 'px';
+        flashlight.style.top = (player.y - 175) + 'px';
+        flashlight.classList.add('active');
+      } else {
+        flashlight.classList.remove('active');
+      }
+    }
+
+    function drawDetectionRadius() {
+      const radius = document.getElementById('detectionRadius');
+      radius.style.width = (monster.hearingRange * 2) + 'px';
+      radius.style.height = (monster.hearingRange * 2) + 'px';
+      radius.style.left = (monster.x - monster.hearingRange) + 'px';
+      radius.style.top = (monster.y - monster.hearingRange) + 'px';
+
+      if (monster.chasing || gameState.noise > 50) {
+        radius.style.display = 'block';
+        radius.style.borderColor = 'rgba(255, 100, 100, 0.6)';
+      } else {
+        radius.style.display = 'none';
+      }
     }
 
     function drawMinimap() {
-      minimapCtx.fillStyle = 'rgba(0,0,0,0.8)';
+      const scaleX = 150 / 1200;
+      const scaleY = 150 / 700;
+
+      minimapCtx.fillStyle = 'rgba(0, 0, 0, 0.9)';
       minimapCtx.fillRect(0, 0, 150, 150);
 
-      const scaleX = 150 / canvas.width;
-      const scaleY = 150 / canvas.height;
-
-      // Draw maze
-      minimapCtx.fillStyle = 'rgba(100,50,0,0.6)';
-      for (let i = 0; i < maze.height; i++) {
-        for (let j = 0; j < maze.width; j++) {
-          if (maze.cells[i][j] === 1) {
-            minimapCtx.fillRect(j * CELL_SIZE * scaleX, i * CELL_SIZE * scaleY, CELL_SIZE * scaleX, CELL_SIZE * scaleY);
-          }
-        }
+      // Draw rooms
+      minimapCtx.strokeStyle = 'rgba(150, 100, 80, 0.6)';
+      minimapCtx.lineWidth = 1;
+      for (let room of level.rooms) {
+        minimapCtx.strokeRect(room.x * scaleX, room.y * scaleY, room.width * scaleX, room.height * scaleY);
       }
 
       // Draw exit
+      minimapCtx.fillStyle = '#00ff00';
+      minimapCtx.fillRect((exitDoorPos.x - 25) * scaleX, (exitDoorPos.y - 25) * scaleY, 50 * scaleX, 50 * scaleY);
+
+      // Draw keys
       minimapCtx.fillStyle = '#ffd700';
-      minimapCtx.fillRect(exitDoorPos.x * scaleX - 3, exitDoorPos.y * scaleY - 3, 6, 6);
+      for (let key of level.keys) {
+        if (!key.collected) {
+          minimapCtx.fillRect(key.x * scaleX - 2, key.y * scaleY - 2, 4, 4);
+        }
+      }
 
       // Draw monster
       minimapCtx.fillStyle = '#ff3333';
@@ -887,7 +1138,7 @@
     function updatePlayerPosition() {
       if (!gameState.started || gameState.paused) return;
 
-      const speed = gameState.isRunning ? 5 : 3;
+      const speed = gameState.isRunning ? 5.5 : 3;
       let newX = player.x;
       let newY = player.y;
 
@@ -896,54 +1147,61 @@
       if (keys['ArrowUp'] || keys['w']) newY -= speed;
       if (keys['ArrowDown'] || keys['s']) newY += speed;
 
-      // Collision detection
-      if (!maze.isWall(newX, newY)) {
+      // Collision detection with walls and closed doors
+      if (!level.isWall(newX, newY, player.width, player.height) && level.canPassDoor(newX, newY, gameState.keysHeld)) {
         player.x = newX;
         player.y = newY;
       }
 
       // Check exit
-      if (Math.hypot(player.x - exitDoorPos.x, player.y - exitDoorPos.y) < 80) {
+      if (Math.hypot(player.x - exitDoorPos.x, player.y - exitDoorPos.y) < 80 && gameState.keysHeld >= 3) {
         completeLevel();
         return;
       }
 
-      // Update flashlight
-      if (gameState.flashlightOn) {
-        document.getElementById('flashlight').style.left = (player.x - 140) + 'px';
-        document.getElementById('flashlight').style.top = (player.y - 140) + 'px';
-      }
+      // Collect keys
+      collectKey();
 
       // Update visual
       document.getElementById('player').style.left = player.x + 'px';
       document.getElementById('player').style.top = player.y + 'px';
       if (gameState.isRunning) document.getElementById('player').classList.add('running');
       else document.getElementById('player').classList.remove('running');
+
+      drawFlashlightCone();
     }
 
     function updateMonster() {
-      monster.update(player.x, player.y, maze, gameState.noise);
+      monster.update(player.x, player.y, gameState.level, gameState.noise, gameState.flashlightOn, gameState.keysHeld);
+
       document.getElementById('monster').style.left = (monster.x - 30) + 'px';
       document.getElementById('monster').style.top = (monster.y - 40) + 'px';
 
       if (monster.chasing) {
         document.getElementById('monster').classList.add('chasing');
-        document.getElementById('monster').style.opacity = Math.min(1, 0.5 + gameState.fear / 200);
+        document.getElementById('monster').style.opacity = Math.min(1, 0.6 + gameState.fear / 200);
       } else {
         document.getElementById('monster').classList.remove('chasing');
-        document.getElementById('monster').style.opacity = 0.3;
+        document.getElementById('monster').style.opacity = 0.4;
       }
 
       if (monster.checkCaught(player.x, player.y)) {
-        updateHealth(-50);
+        updateHealth(-60);
+        triggerJumpscare();
       }
+
+      drawDetectionRadius();
     }
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      maze.draw(ctx);
 
-      // Redraw every frame
+      // Draw level
+      level.draw(ctx);
+
+      // Draw monster detection info (debug)
+      monster.draw(ctx);
+
       requestAnimationFrame(draw);
     }
 
@@ -967,30 +1225,33 @@
       gameState.noise = 0;
       gameState.fear = 0;
       gameState.scares = 0;
+      gameState.keysHeld = 0;
       gameState.startTime = Date.now();
       gameState.maxFear = 0;
 
-      player.x = 100;
-      player.y = 100;
+      player.x = 150;
+      player.y = 150;
 
-      maze = new MazeGenerator(MAZE_WIDTH, MAZE_HEIGHT, CELL_SIZE);
-      monster = new MonsterAI(canvas.width / 2, canvas.height / 2, 2.5 + (gameState.level - 1) * 0.3);
+      level = new LevelDesign(gameState.level);
+      monster = new SmartMonster(600, 350, gameState.level);
 
       document.getElementById('startScreen').style.display = 'none';
       document.getElementById('pauseMenu').style.display = 'none';
       document.getElementById('gameOverScreen').style.display = 'none';
       document.getElementById('gameCompleteScreen').style.display = 'none';
 
+      updateKeyUI();
+      updateHUD();
+
       audio.ambient.play().catch(() => {});
       gameLoop();
       draw();
 
       setTimeout(() => {
-        if (gameState.started && !gameState.paused) {
+        if (gameState.started && !gameState.paused && Math.random() > 0.7) {
           triggerJumpscare();
-          setTimeout(() => triggerJumpscare(), 12000);
         }
-      }, 4000);
+      }, 8000 + Math.random() * 6000);
     }
 
     function pauseGame() {
@@ -1006,6 +1267,7 @@
       const time = Math.floor((Date.now() - gameState.startTime) / 1000);
       document.getElementById('finalScares').textContent = gameState.scares;
       document.getElementById('survivalTime').textContent = time + 's';
+      document.getElementById('finalKeys').textContent = gameState.keysHeld;
       document.getElementById('finalHealth').textContent = Math.round(gameState.health) + '%';
       document.getElementById('gameOverScreen').style.display = 'flex';
       audio.ambient.pause();
@@ -1016,6 +1278,7 @@
       const time = Math.floor((Date.now() - gameState.startTime) / 1000);
       document.getElementById('completeScaresCount').textContent = gameState.scares;
       document.getElementById('completeTime').textContent = time + 's';
+      document.getElementById('completeKeys').textContent = gameState.keysHeld;
       document.getElementById('completeHealth').textContent = Math.round(gameState.health) + '%';
       document.getElementById('gameCompleteScreen').style.display = 'flex';
       audio.ambient.pause();
@@ -1030,6 +1293,7 @@
 
     function resetGame() {
       gameState.level = 1;
+      gameState.keysHeld = 0;
       document.getElementById('levelBadge').textContent = 'LEVEL 1';
       document.getElementById('levelProgress').textContent = 'Level 1';
       document.getElementById('startScreen').style.display = 'flex';
@@ -1053,7 +1317,7 @@
         e.preventDefault();
         if (gameState.started && !gameState.paused) {
           gameState.flashlightOn = !gameState.flashlightOn;
-          document.getElementById('flashlight').style.display = gameState.flashlightOn ? 'block' : 'none';
+          document.getElementById('flashlightCone').style.display = gameState.flashlightOn ? 'block' : 'none';
         }
       }
       if (e.key === ' ') {
@@ -1079,6 +1343,7 @@
 
     // Initialize
     updateHUD();
+    updateKeyUI();
     draw();
   </script>
 </body>
