@@ -38,7 +38,7 @@
       height: 100vh;
       background:
         radial-gradient(circle at center, rgba(0,0,0,0.15), rgba(0,0,0,0.8)),
-        url('https://i.imgur.com/3Z9JuYn.jpg') center center / cover no-repeat;
+        linear-gradient(135deg, #1a0a0a 0%, #2d1515 50%, #1a0a0a 100%);
       filter: brightness(0.6);
       overflow: hidden;
     }
@@ -143,6 +143,40 @@
       50% { transform: translateY(-16px); }
     }
 
+    .exit-door {
+      position: absolute;
+      width: 120px;
+      height: 200px;
+      background: linear-gradient(90deg, #4a2f1f, #2d1810);
+      border: 3px solid #8b6f47;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      z-index: 14;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .exit-door:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.6), inset 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .exit-label {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.1rem;
+      color: #ffd700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+      white-space: nowrap;
+      letter-spacing: 2px;
+    }
+
     .start-screen {
       position: absolute;
       inset: 0;
@@ -150,31 +184,38 @@
       align-items: center;
       justify-content: center;
       z-index: 90;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.85);
       backdrop-filter: blur(3px);
     }
 
     .start-panel {
       text-align: center;
       padding: 2rem 2.5rem;
-      background: rgba(24, 12, 12, 0.7);
+      background: rgba(24, 12, 12, 0.9);
       border: 2px solid rgba(255, 80, 80, 0.8);
       box-shadow: 0 0 30px rgba(255, 0, 0, 0.35);
       border-radius: 18px;
-      max-width: 520px;
+      max-width: 580px;
     }
 
     .start-panel h1 {
-      margin: 0 0 0.6rem;
-      font-size: clamp(2.5rem, 5vw, 5rem);
+      margin: 0 0 0.3rem;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
       line-height: 1;
       color: #fff;
       text-shadow: 0 0 20px rgba(255,0,0,0.8);
     }
 
+    .start-panel .level-badge {
+      font-size: 1.2rem;
+      color: #ffaa00;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 0 8px rgba(255, 170, 0, 0.8);
+    }
+
     .start-panel p {
       margin: 0 0 1.5rem;
-      font-size: clamp(1.1rem, 2vw, 1.8rem);
+      font-size: clamp(1rem, 1.8vw, 1.5rem);
       letter-spacing: 1px;
       color: #f4d1d1;
     }
@@ -184,10 +225,12 @@
       padding: 1rem;
       background: rgba(0,0,0,0.4);
       border-left: 2px solid rgba(255,100,100,0.6);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: #ddd;
       text-align: left;
       border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     .controls-info div {
@@ -201,7 +244,7 @@
       border: none;
       border-radius: 12px;
       padding: 0.9rem 1.8rem;
-      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
       font-family: 'Creepster', cursive;
       letter-spacing: 1px;
       cursor: pointer;
@@ -212,6 +255,95 @@
     .start-button:hover {
       transform: translateY(-2px) scale(1.02);
       box-shadow: 0 0 24px rgba(255,0,0,0.8);
+    }
+
+    .pause-menu {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 85;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+    }
+
+    .pause-panel {
+      text-align: center;
+      padding: 2.5rem 3rem;
+      background: rgba(24, 12, 12, 0.9);
+      border: 2px solid rgba(255, 80, 80, 0.8);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.35);
+      border-radius: 18px;
+      max-width: 450px;
+      animation: pulseIn 0.4s ease-out;
+    }
+
+    @keyframes pulseIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .pause-panel h1 {
+      margin: 0 0 1rem;
+      font-size: 3rem;
+      color: #ff6666;
+      text-shadow: 0 0 15px rgba(255,100,100,0.8);
+    }
+
+    .pause-info {
+      color: #ddd;
+      margin: 1.5rem 0;
+      font-size: 1rem;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+    }
+
+    .menu-button {
+      padding: 0.8rem 1.6rem;
+      font-size: 1.1rem;
+      font-family: 'Creepster', cursive;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .resume-button {
+      background: linear-gradient(180deg, #4da6ff, #0066cc);
+      color: white;
+      box-shadow: 0 0 16px rgba(100, 150, 255, 0.5);
+    }
+
+    .resume-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 24px rgba(100, 150, 255, 0.8);
+    }
+
+    .menu-button.secondary {
+      background: rgba(50, 50, 50, 0.8);
+      color: #ccc;
+      box-shadow: 0 0 10px rgba(100,100,100,0.3);
+      border: 1px solid rgba(100,100,100,0.5);
+    }
+
+    .menu-button.secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 16px rgba(100,100,100,0.5);
+      background: rgba(70, 70, 70, 0.8);
     }
 
     .game-over-screen {
@@ -229,23 +361,12 @@
     .game-over-panel {
       text-align: center;
       padding: 2.5rem 3rem;
-      background: rgba(60, 12, 12, 0.8);
+      background: rgba(60, 12, 12, 0.9);
       border: 3px solid #ff2d2d;
       box-shadow: 0 0 50px rgba(255, 0, 0, 0.5), inset 0 0 30px rgba(255, 0, 0, 0.1);
       border-radius: 18px;
       max-width: 600px;
       animation: pulseIn 0.6s ease-out;
-    }
-
-    @keyframes pulseIn {
-      from {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
     }
 
     .game-over-panel h1 {
@@ -261,6 +382,37 @@
       color: #f4d1d1;
       margin-bottom: 1.5rem;
       letter-spacing: 1px;
+    }
+
+    .game-complete-screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 95;
+      background: linear-gradient(135deg, rgba(0,50,0,0.8), rgba(0,100,50,0.6));
+      backdrop-filter: blur(5px);
+    }
+
+    .game-complete-panel {
+      text-align: center;
+      padding: 2.5rem 3rem;
+      background: rgba(12, 60, 24, 0.9);
+      border: 3px solid #00ff00;
+      box-shadow: 0 0 50px rgba(0, 255, 0, 0.5), inset 0 0 30px rgba(0, 255, 0, 0.1);
+      border-radius: 18px;
+      max-width: 600px;
+      animation: pulseIn 0.6s ease-out;
+    }
+
+    .game-complete-panel h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      color: #00ff00;
+      text-shadow: 0 0 20px rgba(0,255,0,0.9);
+      line-height: 1;
     }
 
     .stats {
@@ -289,55 +441,12 @@
       font-family: monospace;
     }
 
-    .button-group {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 1.5rem;
-    }
-
-    .restart-button, .quit-button {
-      border: none;
-      border-radius: 10px;
-      padding: 0.8rem 1.6rem;
-      font-size: 1.1rem;
-      font-family: 'Creepster', cursive;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .restart-button {
-      background: linear-gradient(180deg, #ff4d4d, #8b0000);
-      color: white;
-      box-shadow: 0 0 16px rgba(255,0,0,0.5);
-    }
-
-    .restart-button:hover {
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 0 24px rgba(255,0,0,0.8);
-    }
-
-    .quit-button {
-      background: rgba(50, 50, 50, 0.8);
-      color: #ccc;
-      box-shadow: 0 0 10px rgba(100,100,100,0.3);
-      border: 1px solid rgba(100,100,100,0.5);
-    }
-
-    .quit-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 16px rgba(100,100,100,0.5);
-      background: rgba(70, 70, 70, 0.8);
-    }
-
     .hud {
       position: absolute;
       top: 18px;
       right: 18px;
       z-index: 25;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       letter-spacing: 1px;
       color: #f9d7d7;
       text-shadow: 0 0 10px rgba(255,0,0,0.7);
@@ -346,16 +455,35 @@
     }
 
     .hud-item {
-      margin: 0.5rem 0;
+      margin: 0.6rem 0;
+    }
+
+    .health-bar {
+      width: 240px;
+      height: 24px;
+      background: rgba(0,0,0,0.6);
+      border: 2px solid rgba(255,50,50,0.7);
+      border-radius: 12px;
+      margin: 0.4rem 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .health-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff00, #ffff00, #ff6600);
+      width: 100%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(0,255,0,0.6);
     }
 
     .fear-bar {
-      width: 200px;
-      height: 20px;
+      width: 240px;
+      height: 24px;
       background: rgba(0,0,0,0.6);
-      border: 1px solid rgba(255,100,100,0.5);
-      border-radius: 10px;
-      margin-top: 0.3rem;
+      border: 2px solid rgba(255,100,100,0.5);
+      border-radius: 12px;
+      margin: 0.4rem 0;
       overflow: hidden;
     }
 
@@ -368,9 +496,21 @@
     }
 
     .scares-counter {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       color: #ff6666;
       text-shadow: 0 0 8px rgba(255,102,102,0.8);
+    }
+
+    .noise-indicator {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      z-index: 25;
+      font-size: 1rem;
+      color: #ffff99;
+      text-shadow: 0 0 8px rgba(255, 255, 100, 0.8);
+      user-select: none;
+      pointer-events: none;
     }
 
     .status-text {
@@ -412,22 +552,12 @@
       100% { transform: translateX(-2%) translateY(1%); }
     }
 
-    .heartbeat {
-      animation: heartbeat 0.6s ease-in-out infinite;
-    }
-
-    @keyframes heartbeat {
-      0%, 100% { transform: scale(1); }
-      25% { transform: scale(1.05); }
-      50% { transform: scale(1); }
-    }
-
     .controls-hint {
       position: absolute;
       bottom: 18px;
       left: 18px;
       z-index: 25;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #999;
       text-shadow: 0 0 5px rgba(0,0,0,0.8);
       user-select: none;
@@ -442,6 +572,20 @@
       z-index: 8;
       display: none;
     }
+
+    .level-progress {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
+      text-align: center;
+      font-size: 1.1rem;
+      color: #ffaa00;
+      text-shadow: 0 0 8px rgba(255, 170, 0, 0.8);
+      user-select: none;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -451,8 +595,16 @@
     <div class="danger-zone" id="dangerZone"></div>
     <div class="flashlight" id="flashlight"></div>
 
+    <div class="noise-indicator" id="noiseIndicator">🔊 Noise: LOW</div>
+
+    <div class="level-progress" id="levelProgress">Level 1 - Find the Exit</div>
+
     <div class="hud" id="hud">
       <div class="hud-item scares-counter">Scares: <span id="scaresCount">0</span></div>
+      <div class="hud-item">Health: <span id="healthValue">100</span>%</div>
+      <div class="health-bar">
+        <div class="health-fill" id="healthFill"></div>
+      </div>
       <div class="hud-item">Fear level: <span id="fearLevel">low</span></div>
       <div class="fear-bar">
         <div class="fear-fill" id="fearFill"></div>
@@ -460,7 +612,7 @@
     </div>
 
     <div class="controls-hint" id="controlsHint">
-      <div>🔦 F: Flashlight | ⬅➡: Move | 🏃 SPACE: Run</div>
+      <div>⬅➡ Move | SPACE: Run | F: Flashlight | ESC: Pause | Goal: Reach the 🚪</div>
     </div>
 
     <div class="message" id="message">
@@ -468,6 +620,11 @@
     </div>
 
     <div class="status-text" id="statusText"></div>
+
+    <div class="exit-door" id="exitDoor" style="bottom: 50px; right: 50px;">
+      🚪
+      <div class="exit-label">EXIT</div>
+    </div>
 
     <img
       src="https://i.imgur.com/3mZ6p9M.png"
@@ -488,14 +645,33 @@
     <div class="start-screen" id="startScreen">
       <div class="start-panel">
         <h1>Midnight Manor</h1>
-        <p>Someone is watching from the shadows...</p>
+        <div class="level-badge" id="levelBadge">LEVEL 1</div>
+        <p>Escape the manor before the ghosts catch you...</p>
         <div class="controls-info">
-          <div><strong>⬅ ➡ Arrow Keys:</strong> Move around</div>
-          <div><strong>SPACE:</strong> Run away from monsters</div>
-          <div><strong>F:</strong> Toggle flashlight</div>
-          <div><strong>ESC:</strong> Pause game</div>
+          <strong>Controls:</strong>
+          <div>⬅ ➡ Arrow Keys: Move around</div>
+          <div>SPACE: Run (uses stamina)</div>
+          <div>F: Flashlight (alerts monsters)</div>
+          <div>ESC: Pause</div>
+          <strong style="display: block; margin-top: 0.8rem;">Objective:</strong>
+          <div>Reach the EXIT door 🚪 to escape</div>
+          <div>Avoid monsters and stay quiet</div>
+          <div>Running/flashlight makes noise</div>
         </div>
         <button class="start-button" id="startButton">Enter the Darkness</button>
+      </div>
+    </div>
+
+    <div class="pause-menu" id="pauseMenu">
+      <div class="pause-panel">
+        <h1>PAUSED</h1>
+        <div class="pause-info">
+          <p>Press ESC to resume or choose below</p>
+        </div>
+        <div class="button-group">
+          <button class="menu-button resume-button" id="resumeButton">Resume Game</button>
+          <button class="menu-button secondary" id="pauseQuitButton">Quit to Menu</button>
+        </div>
       </div>
     </div>
 
@@ -505,7 +681,7 @@
         <div class="subtitle">You were caught!</div>
         <div class="stats">
           <div class="stat-line">
-            <span class="stat-label">Total Scares:</span>
+            <span class="stat-label">Scares:</span>
             <span class="stat-value" id="finalScares">0</span>
           </div>
           <div class="stat-line">
@@ -513,13 +689,42 @@
             <span class="stat-value" id="survivalTime">0s</span>
           </div>
           <div class="stat-line">
-            <span class="stat-label">Max Fear Level:</span>
-            <span class="stat-value" id="maxFear">0%</span>
+            <span class="stat-label">Final Health:</span>
+            <span class="stat-value" id="finalHealth">0%</span>
           </div>
         </div>
         <div class="button-group">
-          <button class="restart-button" id="restartButton">Try Again</button>
-          <button class="quit-button" id="quitButton">Main Menu</button>
+          <button class="menu-button resume-button" id="restartButton">Try Again</button>
+          <button class="menu-button secondary" id="quitButton">Main Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-complete-screen" id="gameCompleteScreen">
+      <div class="game-complete-panel">
+        <h1>ESCAPED!</h1>
+        <div class="subtitle">You made it out alive!</div>
+        <div class="stats">
+          <div class="stat-line">
+            <span class="stat-label">Scares Survived:</span>
+            <span class="stat-value" id="completeScaresCount">0</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">Escape Time:</span>
+            <span class="stat-value" id="completeTime">0s</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">Health Remaining:</span>
+            <span class="stat-value" id="completeHealth">0%</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">Next Level:</span>
+            <span class="stat-value" id="nextLevel">LEVEL 2</span>
+          </div>
+        </div>
+        <div class="button-group">
+          <button class="menu-button resume-button" id="nextLevelButton">Next Level</button>
+          <button class="menu-button secondary" id="completeQuitButton">Main Menu</button>
         </div>
       </div>
     </div>
@@ -534,16 +739,26 @@
     const startScreen = document.getElementById('startScreen');
     const startButton = document.getElementById('startButton');
     const gameOverScreen = document.getElementById('gameOverScreen');
+    const gameCompleteScreen = document.getElementById('gameCompleteScreen');
     const restartButton = document.getElementById('restartButton');
     const quitButton = document.getElementById('quitButton');
+    const nextLevelButton = document.getElementById('nextLevelButton');
+    const completeQuitButton = document.getElementById('completeQuitButton');
     const flashlight = document.getElementById('flashlight');
     const dangerZone = document.getElementById('dangerZone');
     const statusText = document.getElementById('statusText');
     const controlsHint = document.getElementById('controlsHint');
+    const pauseMenu = document.getElementById('pauseMenu');
+    const resumeButton = document.getElementById('resumeButton');
+    const pauseQuitButton = document.getElementById('pauseQuitButton');
+    const exitDoor = document.getElementById('exitDoor');
+    const noiseIndicator = document.getElementById('noiseIndicator');
+    const levelProgress = document.getElementById('levelProgress');
 
     // Game state
     let gameStarted = false;
     let gamePaused = false;
+    let currentLevel = 1;
     let playerX = window.innerWidth / 2;
     let playerY = window.innerHeight / 2;
     let isRunning = false;
@@ -552,23 +767,31 @@
     let maxFearLevel = 0;
     let currentFearLevel = 0;
     let startTime = 0;
+    let health = 100;
+    let noise = 0; // 0-100
     let monsterX = -220;
     let monsterY = window.innerHeight * 0.8;
     let monsterChasing = false;
+    let chasePattern = 0;
 
     const keys = {};
+    const exitDoorX = window.innerWidth - 120;
+    const exitDoorY = window.innerHeight - 250;
 
     // Audio setup
     const screamAudio = new Audio('https://actions.google.com/sounds/v1/alarms/siren_short.ogg');
     const ambientAudio = new Audio('https://actions.google.com/sounds/v1/ambiences/creepy_ambience.ogg');
     const heartbeatAudio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+    const stepAudio = new Audio('https://actions.google.com/sounds/v1/impacts/glass_shattering.ogg');
 
     screamAudio.preload = 'auto';
     ambientAudio.preload = 'auto';
     heartbeatAudio.preload = 'auto';
+    stepAudio.preload = 'auto';
     ambientAudio.loop = true;
     ambientAudio.volume = 0.25;
-    heartbeatAudio.volume = 0.6;
+    heartbeatAudio.volume = 0.4;
+    stepAudio.volume = 0.3;
 
     function unlockAudio() {
       ambientAudio.play().catch(() => {});
@@ -577,6 +800,43 @@
 
     function setMessage(text) {
       message.textContent = text;
+    }
+
+    function updateNoise() {
+      // Running and flashlight increase noise
+      let baseNoise = 20;
+      if (isRunning) baseNoise += 30;
+      if (flashlightOn) baseNoise += 25;
+
+      noise = Math.min(100, Math.max(0, noise - 2)); // Decay over time
+      noise += baseNoise * 0.05;
+
+      let noiseLabel = '🔊 Noise: LOW';
+      let noiseColor = '#99ff99';
+
+      if (noise > 70) {
+        noiseLabel = '🔊 Noise: EXTREME';
+        noiseColor = '#ff3333';
+      } else if (noise > 50) {
+        noiseLabel = '🔊 Noise: HIGH';
+        noiseColor = '#ff9900';
+      } else if (noise > 25) {
+        noiseLabel = '🔊 Noise: MEDIUM';
+        noiseColor = '#ffff99';
+      }
+
+      noiseIndicator.textContent = noiseLabel;
+      noiseIndicator.style.color = noiseColor;
+
+      // Monster detects high noise
+      if (noise > 60 && !monsterChasing) {
+        const distance = calculateDistance(playerX, playerY, monsterX, monsterY);
+        if (distance < 600) {
+          monsterChase(monsterX);
+        }
+      }
+
+      return noise;
     }
 
     function updateFearLevel() {
@@ -596,16 +856,25 @@
       document.getElementById('fearLevel').textContent = fearText;
 
       // Play heartbeat if scared
-      if (currentFearLevel > 60 && !heartbeatAudio.playing) {
-        heartbeatAudio.currentTime = 0;
-        heartbeatAudio.play().catch(() => {});
+      if (currentFearLevel > 60) {
+        if (!heartbeatAudio.playing && heartbeatAudio.paused) {
+          heartbeatAudio.currentTime = 0;
+          heartbeatAudio.play().catch(() => {});
+        }
       }
 
       return currentFearLevel;
     }
 
-    function updateHud(level) {
-      document.getElementById('fearLevel').textContent = level;
+    function updateHealth(amount) {
+      health = Math.max(0, Math.min(100, health + amount));
+      document.getElementById('healthValue').textContent = Math.round(health);
+      const healthFill = document.getElementById('healthFill');
+      healthFill.style.width = health + '%';
+
+      if (health <= 0) {
+        endGame();
+      }
     }
 
     function flashScreen() {
@@ -624,6 +893,7 @@
 
       setMessage('A ghost appears!');
       scaresCount++;
+      updateHealth(-15);
       document.getElementById('scaresCount').textContent = scaresCount;
 
       screamAudio.currentTime = 0;
@@ -651,7 +921,7 @@
 
       let pos = -220;
       const endPos = window.innerWidth + 220;
-      const speed = 2.6;
+      const speed = 2.6 + (currentLevel - 1) * 0.5; // Faster on higher levels
       const startMonsterY = window.innerHeight * 0.75;
       monsterY = startMonsterY;
 
@@ -664,9 +934,9 @@
           monster.style.left = pos + 'px';
           monster.style.bottom = '8%';
 
-          // Check if player is close - monster should chase
+          // Check if player is close or noise is high
           const distance = calculateDistance(playerX, playerY, monsterX, monsterY);
-          if (distance < 250 && !isRunning) {
+          if ((distance < 250 && !isRunning) || noise > 70) {
             monsterChase(pos);
             return;
           }
@@ -693,38 +963,61 @@
 
       monsterChasing = true;
       monster.classList.add('chasing');
+      chasePattern = Math.floor(Math.random() * 3);
       setMessage('RUN!');
 
-      const chaseSpeed = isRunning ? 3.5 : 4.2;
+      const baseChaseSpeed = 3.5 + (currentLevel - 1) * 0.6;
+      const chaseSpeed = isRunning ? baseChaseSpeed + 0.8 : baseChaseSpeed;
       let pos = startPos;
 
       function chase() {
-        if (!gameStarted || !monsterChasing) return;
+        if (!gameStarted || !monsterChasing || gamePaused) return;
 
-        // Move towards player
-        if (pos < playerX) {
-          pos += chaseSpeed;
-        } else {
-          pos -= chaseSpeed;
+        // Different chase patterns
+        switch (chasePattern) {
+          case 0: // Direct pursuit
+            if (pos < playerX) pos += chaseSpeed;
+            else pos -= chaseSpeed;
+            break;
+          case 1: // Flanking
+            const flank = Math.sin(Date.now() / 1000) * 80;
+            if (pos < playerX + flank) pos += chaseSpeed;
+            else pos -= chaseSpeed;
+            break;
+          case 2: // Erratic
+            pos += (Math.random() - 0.5) * chaseSpeed * 2;
+            if (pos < playerX - 100) pos += chaseSpeed;
+            if (pos > playerX + 100) pos -= chaseSpeed;
+            break;
         }
 
         monsterX = pos;
         monster.style.left = pos + 'px';
 
-        // Check if caught player
         const distance = calculateDistance(playerX, playerY, monsterX, monsterY);
         if (distance < 100) {
-          endGame();
+          updateHealth(-50);
+          monsterChasing = false;
+          monster.classList.remove('chasing');
+          showStatus('HIT!', '#ff3333');
+
+          if (health > 0) {
+            setTimeout(() => {
+              setMessage('Keep going!');
+              monsterWalk();
+            }, 1000);
+          }
           return;
         }
 
-        // Check if player escaped
-        if (distance > 350) {
+        if (distance > 400) {
           monsterChasing = false;
           monster.classList.remove('chasing');
           setMessage('You escaped!');
           showStatus('ESCAPED!', '#00ff00');
-          setTimeout(() => monsterWalk(), 1000);
+          setTimeout(() => {
+            if (gameStarted) monsterWalk();
+          }, 1000);
           return;
         }
 
@@ -744,17 +1037,23 @@
       if (keys['ArrowUp'] || keys['w']) playerY = Math.max(0, playerY - speed);
       if (keys['ArrowDown'] || keys['s']) playerY = Math.min(window.innerHeight, playerY - speed);
 
-      // Update flashlight position
+      // Check if near exit
+      const distToExit = calculateDistance(playerX, playerY, exitDoorX + 60, exitDoorY + 100);
+      if (distToExit < 150) {
+        completeLevel();
+        return;
+      }
+
       if (flashlightOn) {
         flashlight.style.left = (playerX - 150) + 'px';
         flashlight.style.top = (playerY - 150) + 'px';
       }
 
-      // Update danger zone
       dangerZone.style.setProperty('--danger-x', playerX + 'px');
       dangerZone.style.setProperty('--danger-y', playerY + 'px');
 
       updateFearLevel();
+      updateNoise();
     }
 
     function showStatus(text, color = '#ffaaaa') {
@@ -790,6 +1089,27 @@
       }, delay);
     }
 
+    function completeLevel() {
+      if (!gameStarted) return;
+
+      gameStarted = false;
+      monsterChasing = false;
+      monster.classList.remove('chasing');
+      ambientAudio.pause();
+      heartbeatAudio.pause();
+
+      const survivalTime = Math.floor((Date.now() - startTime) / 1000);
+
+      document.getElementById('completeScaresCount').textContent = scaresCount;
+      document.getElementById('completeTime').textContent = survivalTime + 's';
+      document.getElementById('completeHealth').textContent = Math.round(health) + '%';
+      document.getElementById('nextLevel').textContent = 'LEVEL ' + (currentLevel + 1);
+
+      gameCompleteScreen.style.display = 'flex';
+      message.style.opacity = '0';
+      controlsHint.style.opacity = '0';
+    }
+
     function endGame() {
       gameStarted = false;
       monsterChasing = false;
@@ -801,7 +1121,7 @@
 
       document.getElementById('finalScares').textContent = scaresCount;
       document.getElementById('survivalTime').textContent = survivalTime + 's';
-      document.getElementById('maxFear').textContent = Math.round(maxFearLevel) + '%';
+      document.getElementById('finalHealth').textContent = Math.round(health) + '%';
 
       gameOverScreen.style.display = 'flex';
       message.style.opacity = '0';
@@ -818,21 +1138,30 @@
       scaresCount = 0;
       maxFearLevel = 0;
       currentFearLevel = 0;
+      health = 100;
+      noise = 0;
       startTime = Date.now();
       monsterChasing = false;
 
       flashlight.style.display = 'none';
       startScreen.style.display = 'none';
       gameOverScreen.style.display = 'none';
+      gameCompleteScreen.style.display = 'none';
+      pauseMenu.style.display = 'none';
       message.style.opacity = '1';
       controlsHint.style.opacity = '1';
       monster.classList.remove('chasing');
 
       document.getElementById('scaresCount').textContent = '0';
+      document.getElementById('healthValue').textContent = '100';
+      document.getElementById('healthFill').style.width = '100%';
+      document.getElementById('fearFill').style.width = '0%';
+
+      levelProgress.textContent = 'Level ' + currentLevel + ' - Find the EXIT Door 🚪';
 
       unlockAudio();
       setMessage('Explore the darkness... if you dare.');
-      updateHud('low');
+      updateHealth(0); // Reset visual
       randomJumpscare();
       monsterWalk();
 
@@ -846,12 +1175,10 @@
       if (gamePaused) {
         ambientAudio.pause();
         heartbeatAudio.pause();
-        setMessage('PAUSED - Press ESC to resume');
-        message.style.opacity = '0.7';
+        pauseMenu.style.display = 'flex';
       } else {
+        pauseMenu.style.display = 'none';
         unlockAudio();
-        setMessage('Explore the darkness... if you dare.');
-        message.style.opacity = '1';
       }
     }
 
@@ -874,6 +1201,9 @@
       scaresCount = 0;
       maxFearLevel = 0;
       currentFearLevel = 0;
+      currentLevel = 1;
+      health = 100;
+      noise = 0;
 
       monster.style.opacity = '0';
       monster.style.left = '-220px';
@@ -887,18 +1217,33 @@
       document.getElementById('fearFill').style.width = '0%';
       document.getElementById('scaresCount').textContent = '0';
       document.getElementById('fearLevel').textContent = 'low';
+      document.getElementById('healthValue').textContent = '100';
+      document.getElementById('healthFill').style.width = '100%';
+      document.getElementById('levelBadge').textContent = 'LEVEL 1';
 
       startScreen.style.display = 'flex';
       gameOverScreen.style.display = 'none';
+      gameCompleteScreen.style.display = 'none';
+      pauseMenu.style.display = 'none';
 
       ambientAudio.pause();
       heartbeatAudio.pause();
+    }
+
+    function nextLevel() {
+      currentLevel++;
+      document.getElementById('levelBadge').textContent = 'LEVEL ' + currentLevel;
+      startGame();
     }
 
     // Event listeners
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', startGame);
     quitButton.addEventListener('click', resetGame);
+    nextLevelButton.addEventListener('click', nextLevel);
+    completeQuitButton.addEventListener('click', resetGame);
+    resumeButton.addEventListener('click', pauseGame);
+    pauseQuitButton.addEventListener('click', resetGame);
 
     document.addEventListener('keydown', (e) => {
       keys[e.key] = true;
@@ -922,7 +1267,7 @@
       }
 
       if (e.key === 'Escape') {
-        if (gameStarted) pauseGame();
+        if (gameStarted && !gameOverScreen.style.display) pauseGame();
       }
     });
 
